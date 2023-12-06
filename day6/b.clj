@@ -12,14 +12,16 @@
         parsed-distances (bigint (apply str (str/split distances #"\s+")))]
     [parsed-times parsed-distances]))
 
+(defn bin-search [start end time distance]
+  (let [i (quot (+ start end) 2)]
+    (cond 
+      (>= start end) end
+      (> (* i (- time i)) distance) (bin-search start i time distance)
+      :else (bin-search (+ i 1) end time distance))))
 
 (defn main []
   (let [lines (read-file "input.txt")
         [time distance] (apply parse-race lines)
-        loosing-times (->> time
-                           (range)
-                           (take-while #(<= (* % (- time %))
-                                            distance))
-                           count)]
-    (+ (- time (* 2 loosing-times)) 1)))
+        first-greater (bin-search 0 time time distance)]
+    (+ (- time (* first-greater 2)) 1)))
 
